@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { connect } from 'socket.io-client';
+import io from 'socket.io-client';
 import { v4 as uuidv4 } from 'uuid';
 
 const App = () => {
 
-  const [socket, setSocket] = useState(null);
+  const [socket, setSocket] = useState('');
   const [tasks, setTasks] = useState([]);
   const [taskName, setTaskName] = useState('');
 
 
 
   useEffect(() => {
-
-    const newSocket = connect('localhost:8001',{ transports: ['websocket', 'polling', 'flashsocket'] });
+    const newSocket = io('ws://localhost:8000', { transports: ["websocket"] });
     setSocket(newSocket);
-
 
     newSocket.on('connect', () => {
       console.log('Connected to server');
     });
 
-    newSocket.on('addTask', ({ name, id }) => addTask(name, id));
-    //newSocket.on('removeTask', ({ id }) => removeTask(id, false));
+    newSocket.on('addTask', (task) => addTask(task));
+    newSocket.on('removeTask', ({ id }) => removeTask(id, false));
     newSocket.on('updateData', (tasks) => updateTasks(tasks));
 
     newSocket.on('disconnect', () => {
@@ -35,7 +33,7 @@ const App = () => {
 
 
   const removeTask = (taskId, shouldEmit) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    setTasks(tasks => tasks.filter(task => task.id !== taskId));
 
     if (shouldEmit) {
       socket.emit('removeTask', { taskId });
