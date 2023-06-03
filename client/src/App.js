@@ -19,7 +19,7 @@ const App = () => {
     });
 
     newSocket.on('addTask', (task) => addTask(task));
-    newSocket.on('removeTask', ({ id }) => removeTask(id, false));
+    newSocket.on('removeTask', ( id ) => removeTask(id));
     newSocket.on('updateData', (tasks) => updateTasks(tasks));
 
     newSocket.on('disconnect', () => {
@@ -36,7 +36,7 @@ const App = () => {
     setTasks(tasks => tasks.filter(task => task.id !== taskId));
 
     if (shouldEmit) {
-      socket.emit('removeTask', { taskId });
+      socket.emit('removeTask',  taskId );
     }
   };
   const addTask = (task) => {
